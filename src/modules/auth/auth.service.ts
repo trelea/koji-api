@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from '../users';
@@ -30,28 +31,87 @@ export class AuthService {
   }
 
   async login(req: Request, res: Response) {
-    const access_token = this.signToken(req.user?.id as string, 'ACCESS');
-    const refresh_token = this.signToken(req.user?.id as string, 'REFRESH');
+    try {
+      const access_token = this.signToken(req.user?.id as string, 'ACCESS');
+      const refresh_token = this.signToken(req.user?.id as string, 'REFRESH');
 
+      await this.redisService
+        .namespace(CACHE_NAMESPACE.USERS)
+        .set(req.user?.id as string, {
+          ...req.user,
+          access_token,
+          refresh_token,
+        });
+
+      res.cookie('Access', access_token, {
+        httpOnly: true,
+        sameSite: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge:
+          parseInt(
+            this.configService.getOrThrow<string>('JWT_ACCESS_EXPIRATION'),
+          ) * 1000,
+      });
+      res.cookie('Refresh', refresh_token, {
+        httpOnly: true,
+        sameSite: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge:
+          parseInt(
+            this.configService.getOrThrow<string>('JWT_REFRESH_EXPIRATION'),
+          ) * 1000,
+      });
+
+      return true;
+    } catch (err) {
+      throw new InternalServerErrorException(err);
+    }
+  }
+
+  async logout(req: Request, res: Response) {
+    try {
+      await this.redisService.del(req.user?.id as string);
+      res.clearCookie('Access');
+      res.clearCookie('Refresh');
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  async refresh(req: Request, res: Response) {
+    /**
+     * Bypass if access token exists and its valid one
+     */
+    if (req.cookies['Access']) {
+      try {
+        this.jwtService.verify(req.cookies['Access'], {
+          secret: this.configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
+        });
+        return false;
+      } catch (err) {
+        throw new UnauthorizedException();
+      }
+    }
+
+    const access_token = this.signToken(req.user?.id as string, 'ACCESS');
     await this.redisService
       .namespace(CACHE_NAMESPACE.USERS)
       .set(req.user?.id as string, {
         ...req.user,
         access_token,
-        refresh_token,
+        refresh_token: req.cookies['Refresh'],
       });
 
-    res.setHeader('Authorization', `Bearer ${access_token}`);
-    res.setHeader('Refresh', `Bearer ${refresh_token}`);
-
-    return {
-      access_token,
-      refresh_token,
-    };
-  }
-
-  async logout(req: Request) {
-    await this.redisService.del(req.user?.id as string);
+    res.cookie('Access', access_token, {
+      httpOnly: true,
+      sameSite: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge:
+        parseInt(
+          this.configService.getOrThrow<string>('JWT_ACCESS_EXPIRATION'),
+        ) * 1000,
+    });
     return true;
   }
 

@@ -33,22 +33,16 @@ export class AuthController {
 
   @UseGuards(JwtAccessStrategyGuard)
   @Post('logout')
-  async logout(@Req() req: Request) {
-    return await this.authService.logout(req);
-  }
-
-  /**
-   * Some Test Endpoints for jwt-access-token
-   */
-  @UseGuards(JwtAccessStrategyGuard)
-  @Get('status')
-  status(@Req() req: Request) {
-    return { msg: req.user };
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    return await this.authService.logout(req, res);
   }
 
   @UseGuards(JwtRefreshStrategyGuard)
-  @Post('refresh')
-  refresh() {
-    return { msg: 'REFRESH' };
+  @Post('refresh-token')
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return await this.authService.refresh(req, res);
   }
 }
