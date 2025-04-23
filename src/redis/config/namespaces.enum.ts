@@ -1,0 +1,4 @@
+export enum CACHE_NAMESPACE {
+  USERS = 'USERS',
+  MESSAGES = 'MESSAGES',
+}

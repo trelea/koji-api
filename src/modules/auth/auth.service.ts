@@ -11,8 +11,8 @@ import { Response, Request } from 'express';
 import { User } from 'src/entities';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { CacheService } from 'src/cache';
-import { CACHE_NAMESPACE } from 'src/cache/config';
+import { RedisService } from 'src/redis';
+import { CACHE_NAMESPACE } from 'src/redis/config';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +21,7 @@ export class AuthService {
     private readonly cryptogrphy: CryptographyService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly redisService: CacheService,
+    private readonly redisService: RedisService,
   ) {}
 
   async register(user: RegisterDto) {
@@ -31,17 +31,17 @@ export class AuthService {
   }
 
   async login(req: Request, res: Response) {
+    if (req.cookies['Access'] && req.cookies['Refresh']) return true;
+
     try {
       const access_token = this.signToken(req.user?.id as string, 'ACCESS');
       const refresh_token = this.signToken(req.user?.id as string, 'REFRESH');
 
-      await this.redisService
-        .namespace(CACHE_NAMESPACE.USERS)
-        .set(req.user?.id as string, {
-          ...req.user,
-          access_token,
-          refresh_token,
-        });
+      await this.redisService.set({
+        ns: CACHE_NAMESPACE.USERS,
+        key: req.user?.id as string,
+        val: { access_token, refresh_token, ...req.user },
+      });
 
       res.cookie('Access', access_token, {
         httpOnly: true,
@@ -70,7 +70,10 @@ export class AuthService {
 
   async logout(req: Request, res: Response) {
     try {
-      await this.redisService.del(req.user?.id as string);
+      await this.redisService.del({
+        ns: CACHE_NAMESPACE.USERS,
+        key: req.user?.id as string,
+      });
       res.clearCookie('Access');
       res.clearCookie('Refresh');
       return true;
@@ -95,13 +98,11 @@ export class AuthService {
     }
 
     const access_token = this.signToken(req.user?.id as string, 'ACCESS');
-    await this.redisService
-      .namespace(CACHE_NAMESPACE.USERS)
-      .set(req.user?.id as string, {
-        ...req.user,
-        access_token,
-        refresh_token: req.cookies['Refresh'],
-      });
+    await this.redisService.set({
+      ns: CACHE_NAMESPACE.USERS,
+      key: req.user?.id as string,
+      val: { access_token, refresh_token: req.cookies['Refresh'], ...req.user },
+    });
 
     res.cookie('Access', access_token, {
       httpOnly: true,
