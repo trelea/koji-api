@@ -10,10 +10,10 @@ import {
   JwtRefreshStrategy,
   LocalStrategy,
 } from './strategies';
-import { CacheModule } from 'src/cache';
+import { RedisModule } from 'src/redis';
 
 @Module({
-  imports: [UsersModule, PassportModule, JwtModule, CacheModule],
+  imports: [UsersModule, PassportModule, JwtModule, RedisModule],
   controllers: [AuthController],
   providers: [
     AuthService,
