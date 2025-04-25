@@ -13,6 +13,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from 'src/redis';
 import { CACHE_NAMESPACE } from 'src/redis/config';
+import { OtpService } from '../otp';
 
 @Injectable()
 export class AuthService {
@@ -22,17 +23,61 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly redisService: RedisService,
+    private readonly otpService: OtpService,
   ) {}
 
-  async register(user: RegisterDto) {
+  async register(user: RegisterDto, res: Response) {
     const exists = await this.usersService.findUserBy({ email: user.email });
     if (exists) throw new ConflictException('Resource already exists');
-    return await this.usersService.createUser(user);
+
+    /**
+     * 1. genrate otp
+     * 2. send otp to user email
+     * 3. genrate jwt then hash it
+     * 4. store user and otp info in chche for 5 min
+     * 5. send jwt in res
+     * 6. store hashed as cookie fro 5 min
+     */
+
+    const { otp, mail, hashed, jwt } = await this.otpService.OTPExecute({
+      to: user.email,
+      hash: () => this.signToken(Date.now().toString(), 'OTP'),
+      length: 6,
+    });
+
+    if (mail?.error)
+      throw new InternalServerErrorException('OTP mail delivery failed');
+
+    res.cookie('_tkn_hsh', hashed, {
+      httpOnly: true,
+      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge:
+        60 *
+        1000 *
+        parseInt(this.configService.getOrThrow<string>('JWT_OTP_EXPIRATION')),
+    });
+
+    /**
+     * Cache otp and user
+     */
+    await this.redisService.set({
+      ns: CACHE_NAMESPACE.AUTH,
+      key: hashed as string,
+      val: { ...user, otp },
+      ttl:
+        60 *
+        1000 *
+        parseInt(this.configService.getOrThrow<string>('JWT_OTP_EXPIRATION')),
+    });
+
+    /**
+     * return redirection to GET /otp/verify?_tkn={jwt}
+     */
+    return { _tkn: jwt };
   }
 
   async login(req: Request, res: Response) {
-    if (req.cookies['Access'] && req.cookies['Refresh']) return true;
-
     try {
       const access_token = this.signToken(req.user?.id as string, 'ACCESS');
       const refresh_token = this.signToken(req.user?.id as string, 'REFRESH');
@@ -45,21 +90,25 @@ export class AuthService {
 
       res.cookie('Access', access_token, {
         httpOnly: true,
-        sameSite: true,
+        sameSite: 'strict',
         secure: process.env.NODE_ENV === 'production',
         maxAge:
+          60 *
+          1000 *
           parseInt(
             this.configService.getOrThrow<string>('JWT_ACCESS_EXPIRATION'),
-          ) * 1000,
+          ),
       });
       res.cookie('Refresh', refresh_token, {
         httpOnly: true,
-        sameSite: true,
+        sameSite: 'strict',
         secure: process.env.NODE_ENV === 'production',
         maxAge:
+          60 *
+          1000 *
           parseInt(
             this.configService.getOrThrow<string>('JWT_REFRESH_EXPIRATION'),
-          ) * 1000,
+          ),
       });
 
       return true;
@@ -109,9 +158,11 @@ export class AuthService {
       sameSite: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge:
+        60 *
+        1000 *
         parseInt(
           this.configService.getOrThrow<string>('JWT_ACCESS_EXPIRATION'),
-        ) * 1000,
+        ),
     });
     return true;
   }
@@ -123,14 +174,16 @@ export class AuthService {
     return user;
   }
 
-  signToken(id: string, type: 'REFRESH' | 'ACCESS') {
+  signToken(id: string, type: 'REFRESH' | 'ACCESS' | 'OTP'): string {
     return this.jwtService.sign(
       { id },
       {
         secret: this.configService.getOrThrow<string>(`JWT_${type}_SECRET`),
-        expiresIn: parseInt(
-          this.configService.getOrThrow<string>(`JWT_${type}_EXPIRATION`),
-        ),
+        expiresIn:
+          60 *
+          parseInt(
+            this.configService.getOrThrow<string>(`JWT_${type}_EXPIRATION`),
+          ),
       },
     );
   }

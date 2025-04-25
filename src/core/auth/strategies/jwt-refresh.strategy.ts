@@ -4,7 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { User } from 'src/entities';
-import { UsersService } from 'src/modules/users';
+import { UsersService } from 'src/core/users';
 import { RedisService } from 'src/redis';
 import { CACHE_NAMESPACE } from 'src/redis/config';
 
