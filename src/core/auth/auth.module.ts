@@ -11,11 +11,26 @@ import {
   LocalStrategy,
 } from './strategies';
 import { RedisModule } from 'src/redis';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { throttlerConfig } from 'src/config';
+import { APP_GUARD } from '@nestjs/core';
+import { OtpModule } from '../otp';
 
 @Module({
-  imports: [UsersModule, PassportModule, JwtModule, RedisModule],
+  imports: [
+    ThrottlerModule.forRootAsync(throttlerConfig),
+    UsersModule,
+    PassportModule,
+    JwtModule,
+    RedisModule,
+    OtpModule,
+  ],
   controllers: [AuthController],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     AuthService,
     CryptographyService,
     LocalStrategy,

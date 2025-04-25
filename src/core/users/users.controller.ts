@@ -5,5 +5,7 @@ import { JwtAccessStrategyGuard } from '../auth/guards';
 export class UsersController {
   @UseGuards(JwtAccessStrategyGuard)
   @Get()
-  async users() {}
+  async users() {
+    return { users: ['Ann', 'Marcel', 'Igor'] };
+  }
 }
