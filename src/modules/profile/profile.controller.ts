@@ -2,6 +2,7 @@ import {
   Body,
   ConflictException,
   Controller,
+  Get,
   Post,
   Req,
   Res,
@@ -17,6 +18,7 @@ import { User } from 'src/entities';
 import { DeepPartial } from 'typeorm';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ThumbValidationPipe } from 'src/common/pipes';
+import { UserConfiguredGuard } from 'src/common/guards/user-configured.guard';
 
 @UseGuards(JwtAccessStrategyGuard)
 @Controller('profile')
@@ -36,5 +38,11 @@ export class ProfileController {
       details,
       thumb,
     );
+  }
+
+  @Get('setup/status')
+  @UseGuards(UserConfiguredGuard)
+  async setupStatus(@Req() req: Request) {
+    if (req.user?.details) throw new ConflictException('Profile already setup');
   }
 }
