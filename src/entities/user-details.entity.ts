@@ -1,10 +1,11 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToOne } from 'typeorm';
 import { BaseEntity } from './_base.entity';
+import { User } from './user.entity';
 
 @Entity()
 export class UserDetails extends BaseEntity {
   @Column({ type: 'varchar', nullable: false, unique: true })
-  nickname: string;
+  hashname: string;
 
   @Column({ type: 'text', nullable: true })
   description: string;
@@ -17,4 +18,7 @@ export class UserDetails extends BaseEntity {
 
   @Column({ type: 'text', nullable: true })
   thumb: string;
+
+  @OneToOne(() => User, (user) => user.details)
+  user: User;
 }

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersModule } from '../users';
@@ -23,7 +23,7 @@ import { OtpModule } from '../otp';
     PassportModule,
     JwtModule,
     RedisModule,
-    OtpModule,
+    forwardRef(() => OtpModule),
   ],
   controllers: [AuthController],
   providers: [
@@ -37,5 +37,6 @@ import { OtpModule } from '../otp';
     JwtAccessStrategy,
     JwtRefreshStrategy,
   ],
+  exports: [AuthService],
 })
 export class AuthModule {}

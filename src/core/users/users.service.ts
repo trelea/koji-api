@@ -21,7 +21,8 @@ export class UsersService {
   async createUser(user: CreateUserDto): Promise<User> {
     try {
       user.password = await this.cryptography.encrypt(user.password);
-      return await this.userRepository.save(user);
+      const userInstance = this.userRepository.create(user);
+      return await this.userRepository.save(userInstance);
     } catch (err) {
       throw new InternalServerErrorException(err);
     }
@@ -30,11 +31,13 @@ export class UsersService {
   async findUserBy(
     query: FindOptionsWhere<User> | FindOptionsWhere<User>[],
   ): Promise<User | null> {
-    // try {
-    return await this.userRepository.findOneBy(query);
-    // if (!user) throw new NotFoundException();
-    // } catch (err) {
-    //   throw new InternalServerErrorException(err);
-    // }
+    try {
+      return await this.userRepository.findOne({
+        where: query,
+        relations: { details: true },
+      });
+    } catch (err) {
+      throw new InternalServerErrorException(err);
+    }
   }
 }

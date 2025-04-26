@@ -7,8 +7,14 @@ import {
 export class BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @CreateDateColumn()
-  created_at: Date;
-  @UpdateDateColumn()
-  updated_at: Date;
+
+  @CreateDateColumn({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
+  created_at!: Date;
+
+  @UpdateDateColumn({
+    type: 'date',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updated_at!: Date;
 }

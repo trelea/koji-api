@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  forwardRef,
   Get,
+  Inject,
   Post,
   Query,
   Req,
@@ -12,6 +14,8 @@ import { OtpService } from './otp.service';
 import { OTPDto } from './dtos';
 import { OTPStrategyGuard } from './guards';
 import { Request, Response } from 'express';
+import { User } from 'src/entities';
+import { AuthService } from '../auth';
 
 /**
  * OTP Guard
@@ -19,7 +23,11 @@ import { Request, Response } from 'express';
 @UseGuards(OTPStrategyGuard)
 @Controller('otp')
 export class OtpController {
-  constructor(private readonly otpService: OtpService) {}
+  constructor(
+    private readonly otpService: OtpService,
+    @Inject(forwardRef(() => AuthService))
+    private readonly authService: AuthService,
+  ) {}
 
   @Get('verify')
   async verifyToken(@Query('_tkn') token: string): Promise<boolean> {
@@ -34,6 +42,13 @@ export class OtpController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const hash = req.cookies['_tkn_hsh'];
-    return await this.otpService.verifyOTP(hash, otp.otp, res);
+    const verfied = await this.otpService.verifyOTP(hash, otp.otp, res);
+
+    if (verfied instanceof User) {
+      req.user = verfied;
+      return await this.authService.login(req, res);
+    }
+
+    return false;
   }
 }

@@ -11,8 +11,8 @@ import { Response } from 'express';
 import { RedisService } from 'src/redis';
 import { CACHE_NAMESPACE } from 'src/redis/config';
 import { RegisterDto } from '../auth/dtos';
-import { User } from 'src/entities';
 import { UsersService } from '../users';
+import { User } from 'src/entities';
 
 @Injectable()
 export class OtpService {
@@ -39,12 +39,12 @@ export class OtpService {
     };
   }
 
-  async verifyOTP(hash: string, otp: string, res: Response) {
+  async verifyOTP(hash: string, otp: string, res: Response): Promise<User> {
     /**
      * Check cache
      */
     const data = await this.redisService.get<RegisterDto & { otp: string }>({
-      ns: CACHE_NAMESPACE.AUTH,
+      ns: CACHE_NAMESPACE.OTP,
       key: hash,
     });
 
@@ -55,16 +55,15 @@ export class OtpService {
     if (otp !== data.otp) throw new UnauthorizedException('Wrong OTP Code');
 
     /**
-     * create new user
-     */
-    const { email, password, name } = data;
-    await this.usersService.createUser({ email, password, name });
-
-    /**
      * clear cookies and cache
      */
-    await this.redisService.del({ ns: CACHE_NAMESPACE.AUTH, key: hash });
+    const { email, password, name } = data;
+    await this.redisService.del({ ns: CACHE_NAMESPACE.OTP, key: hash });
     res.clearCookie('_tkn_hsh');
-    return true;
+
+    /**
+     * create new user
+     */
+    return await this.usersService.createUser({ email, password, name });
   }
 }

@@ -22,6 +22,7 @@ async function bootstrap() {
     origin:
       configService.getOrThrow<string>('ORIGIN') || 'http://localhost:5173',
     credentials: true,
+    exposedHeaders: '*',
   });
 
   app.set('trust proxy', true);

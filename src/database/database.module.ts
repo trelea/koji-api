@@ -20,4 +20,4 @@ import { User, UserDetails } from 'src/entities';
     }),
   ],
 })
-export class DatabaseModule {}
+export class DatabaseModule extends TypeOrmModule {}
