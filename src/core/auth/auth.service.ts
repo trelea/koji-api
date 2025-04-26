@@ -1,5 +1,7 @@
 import {
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
@@ -14,6 +16,7 @@ import { ConfigService } from '@nestjs/config';
 import { RedisService } from 'src/redis';
 import { CACHE_NAMESPACE } from 'src/redis/config';
 import { OtpService } from '../otp';
+import { UserNotConfiguredException } from 'src/common/exceptions';
 
 @Injectable()
 export class AuthService {
@@ -23,6 +26,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly redisService: RedisService,
+    @Inject(forwardRef(() => OtpService))
     private readonly otpService: OtpService,
   ) {}
 
@@ -62,7 +66,7 @@ export class AuthService {
      * Cache otp and user
      */
     await this.redisService.set({
-      ns: CACHE_NAMESPACE.AUTH,
+      ns: CACHE_NAMESPACE.OTP,
       key: hashed as string,
       val: { ...user, otp },
       ttl:
@@ -110,11 +114,12 @@ export class AuthService {
             this.configService.getOrThrow<string>('JWT_REFRESH_EXPIRATION'),
           ),
       });
-
-      return true;
     } catch (err) {
       throw new InternalServerErrorException(err);
     }
+
+    if (!req.user?.details) throw new UserNotConfiguredException();
+    return req.user;
   }
 
   async logout(req: Request, res: Response) {
@@ -167,11 +172,15 @@ export class AuthService {
     return true;
   }
 
-  async validate(email: string, password: string): Promise<User> {
+  async validate(
+    email: string,
+    password: string,
+  ): Promise<Omit<User, 'password'>> {
     const user = await this.usersService.findUserBy({ email });
     if (!user || !(await this.cryptogrphy.verify(user.password, password)))
       throw new UnauthorizedException('Invalid Credentials');
-    return user;
+    const { password: _password, ...rest } = user;
+    return rest;
   }
 
   signToken(id: string, type: 'REFRESH' | 'ACCESS' | 'OTP'): string {
