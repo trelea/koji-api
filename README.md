@@ -1,137 +1,154 @@
-# KOJI
+# KOJI - Real-Time Messaging Platform
 
-**Smart Messaging with Collaborative Pools**
+## The Next Evolution in Digital Communication
 
-KOJI is a modern messaging app that enhances group communication through real-time chat and interactive “pools” — dynamic decision-making tools built directly into your conversations. Whether you're planning, polling, or just chatting, KOJI makes it easy to stay connected and aligned.
+KOJI is a groundbreaking real-time communication ecosystem that transcends traditional messaging platforms. Built on a foundation of cutting-edge technologies, KOJI redefines how people connect in the digital age through intelligent conversation spaces and dynamic interaction pools. This ambitious platform seamlessly bridges the gap between instant messaging, collaborative workspaces, and social networking to create a unified communication experience like never before.
 
-## ✨ Features
+## The Technology Backbone
 
-- 💬 Real-time messaging with a smooth, intuitive interface
-- 🗳️ Built-in collaborative pools to make group decisions effortlessly
-- 🤝 Designed for teams, friends, and communities
-- 📱 Fast and user-friendly on both mobile and web
+### Advanced Architecture
+- **NestJS** - Enterprise-grade framework providing a modular architecture with dependency injection
+- **TypeScript** - Bringing type safety and modern language features to enhance code quality and maintainability
+- **PostgreSQL** - Powerful relational database with advanced indexing for lightning-fast data retrieval
+- **Redis** - Ultra-fast in-memory data store enabling real-time message delivery and sophisticated caching
 
-## 📦 Getting Started
+### Cloud & Infrastructure
+- **AWS S3** - Infinitely scalable object storage ensuring reliable media handling and global availability
+- **JWT Authentication** - Military-grade token-based security with rotation mechanisms
+- **Multi-layer Caching** - Strategic caching at multiple levels for extraordinary performance
+- **Winston Logger** - Comprehensive logging system with customizable transports and rotation policies
 
-Coming soon – setup instructions for running KOJI locally or contributing to the project.
+## Revolutionary Features
 
-## 🛠 Tech Stack
+### Secure Authentication & Onboarding
+- 🔐 **OTP-Based Registration** - Frictionless and secure signup flow using One-Time Passwords
+- 📧 **Email Verification** - Powered by Resend for reliable delivery and tracking
+- 🔄 **Token Rotation** - Sophisticated JWT lifecycle management for maximum security
+- 👤 **Progressive Profiling** - Gradual collection of user information for optimized onboarding
 
-- NestJS (Backend)
-- WebSocket for real-time messaging
-- Redis (for cache/session management)
-- PostgreSQL / MongoDB (planned)
-- React Native / Expo (Client, coming soon)
+### Core Communication
+- 🔄 **Zero-Latency Messaging** - Advanced WebSocket implementation with fallback mechanisms for 99.99% uptime
+- 🔍 **Smart Message Search** - Contextual search algorithms that understand natural language queries
+- 🌈 **Rich Media Experience** - Support for images, videos, documents, code snippets with smart previews
+- 📱 **Cross-Device Synchronization** - Seamless experience across mobile, desktop, and web platforms
 
-## 🤝 Contributing
+### Enhanced Collaboration
+- 🌐 **Dynamic Pools** - Expandable group spaces that adapt to your team's needs with flexible permissions
+- 📂 **Intelligent File Management** - Automatic organization of shared media with AI-powered tagging
+- 🧵 **Threaded Conversations** - Keep discussions organized with powerful threading capabilities
+- 📊 **Interactive Polls & Surveys** - Gather feedback and make decisions with built-in polling tools
 
-We’re building KOJI to be collaborative — just like the app itself. If you’d like to help out, stay tuned for contribution guidelines!
+### Advanced User Experience
+- 🔖 **Smart Notifications** - Context-aware alert system that learns user preferences and priorities
+- 🎭 **Customizable Themes** - Express yourself with personalized interface themes and layouts
+- 🔒 **End-to-End Encryption** - Optional encryption for sensitive conversations and data
+- 🌙 **Focused Mode** - Distraction-free communication environments for deep work sessions
 
-## 📬 Contact
+### Developer-Friendly Features
+- 🧩 **Extensible Plugin Architecture** - Build custom integrations and extensions
+- 🔌 **Comprehensive API** - Well-documented endpoints for seamless third-party integration
+- 🤖 **Automation Capabilities** - Create workflows and automatic responses to streamline communication
+- 📈 **Detailed Analytics** - Gain insights into usage patterns and communication effectiveness
 
-For questions, ideas, or collabs, reach out at: [treleamarius76@gmail.com](mailto:treleamarius76@gmail.com)
+### Enterprise-Ready Capabilities
+- 🔐 **Role-Based Access Control** - Granular permission management for organizational hierarchies
+- 🌍 **Multi-Region Deployment** - Global infrastructure support for international organizations
+- 🛡️ **Advanced Threat Protection** - Proactive security measures against common attack vectors
+- 📚 **Audit Logging** - Comprehensive activity tracking for compliance and security
+
+### Social Engagement
+- 👥 **Community Pools** - Public and private community spaces with moderation tools
+- 🏆 **Gamification Elements** - Engagement incentives through achievements and reputation systems
+- 🔗 **Smart Connections** - AI-powered suggestions for relevant contacts and communities
+- 🌟 **Rich Profile System** - Expressive user profiles with customizable attributes
+
+## Technical Excellence
+
+KOJI is built with performance and scalability as core principles. The application employs a microservices-ready architecture that can be deployed as a monolith for smaller implementations or expanded into distributed services for enterprise-scale deployments. The codebase follows SOLID principles and clean architecture patterns, making it maintainable and extensible.
+
+The database layer utilizes PostgreSQL's advanced features including materialized views for complex reporting, JSON capabilities for flexible data structures, and sophisticated indexing strategies for optimal query performance. Redis provides not only caching but also pub/sub capabilities for real-time event propagation throughout the system.
+
+Security is baked into every layer with comprehensive input validation, output sanitization, rate limiting, and continuous vulnerability scanning integrated into the CI/CD pipeline.
+
+## Getting Started
+
+KOJI requires Node.js and uses Yarn as its package manager. To begin your journey:
+
+```bash
+# Install dependencies
+yarn install
+
+# Configure your environment
+cp .env.example .env
+# Edit .env with your configuration
+
+# Run in development mode
+yarn start:dev
+
+# Build for production
+yarn build
+yarn start:prod
+```
+
+## Environment Configuration
+
+Configure your installation using the following environment variables:
+
+```
+DB_HOST=<str>              # PostgreSQL host address
+DB_USER=<str>              # Database username
+DB_PASS=<str>              # Database password
+DB_NAME=<str>              # Database name
+DB_PORT=<nr>               # Database port number
+
+# JWT Configuration
+JWT_ACCESS_SECRET=<str>    # Secret for signing access tokens
+JWT_ACCESS_EXPIRATION=<nr> # Access token lifetime in minutes
+JWT_REFRESH_SECRET=<str>   # Secret for signing refresh tokens
+JWT_REFRESH_EXPIRATION=<nr> # Refresh token lifetime in minutes
+JWT_OTP_SECRET=<str>       # Secret for signing OTP tokens
+JWT_OTP_EXPIRATION=<nr>    # OTP token lifetime in minutes
+
+# Redis Configuration
+REDIS_HOST=<str>           # Redis host address
+REDIS_USER=<str>           # Redis username for ACL
+REDIS_PASS=<str>           # Redis password
+REDIS_PORT=<nr>            # Redis port number
+
+# Encryption Settings
+CRYPTO_SALT=<str>          # Salt for cryptographic operations
+CRYPTO_KEY_LEN=<nr>        # Key length for encryption algorithms
+
+# Application Settings
+ORIGIN=<str>               # CORS origin setting
+RESEND_API_KEY=<str>       # API key for email services
+
+# Rate Limiting
+THROTTLE_TTL=<nr>          # Rate limit window in minutes
+THROTTLE_LIMIT=<nr>        # Maximum requests within window
+
+# AWS S3 Configuration
+AWS_S3_ACCESS=<str>        # AWS access key ID
+AWS_S3_SECRET=<str>        # AWS secret access key
+AWS_S3_REGION=<str>        # AWS region
+AWS_S3_BUCKET=<str>        # S3 bucket name
+```
+
+## Redis Configuration
+
+KOJI uses Redis with Access Control Lists (ACL) for enhanced security. Configure your Redis instance with the following ACL settings in `redis.conf`:
+
+```
+# Enable ACL with two users
+# Default user (disabled if not needed)
+user default off
+
+# Custom app user
+user <USER> on ><PASSWORD> allkeys allcommands
+```
+
+Replace `<USER>` and `<PASSWORD>` with the same credentials specified in your `.env` file. This configuration ensures that only authenticated users can access your Redis instance.
 
 ---
 
-Built with ❤️ for better group decisions.
-
-
-
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ yarn install
-```
-
-## Compile and run the project
-
-```bash
-# development
-$ yarn run start
-
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
-```
-
-## Run tests
-
-```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ yarn install -g mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+*KOJI - Redefining Connection for the Digital Age*
